@@ -1,10 +1,10 @@
-import React from 'react'
-import Quiz from './components/Quiz/Quiz.jsx'
+//import React from 'react';
+import Quiz from './components/Quiz/Quiz.jsx';
 
 const App = () => {
   return (
-    Quiz
-  )
-}
+    <Quiz />
+  );
+};
 
-export default App
+export default App;

@@ -1,80 +1,78 @@
-import React, { useState } from 'react'
-import React, { useRef } from 'react'
-import './Quiz.css'
-import {data} from '../../assets/data'
+import  { useState, useRef } from 'react';
+import './Quiz.css';
+import sample from '../../assets/data.js';
 
-export const Quiz = () => {
-    let[index,setIndex]=useState(0);
-    let[score,setScore]=useState(0);
-    let[question,setQuestion]=useState(data[index]);
-    let[choices,setChoices]=useState(question.choices);
-    let[correct_choice,setCorrect_choice]=useState(question.correct_choice);
-    let[lock,setlock]= useState(false);
-    let[degree,setDegree]=useState(false);
+const Quiz = () => {
+    const [index, setIndex] = useState(0);
+    const [score, setScore] = useState(0);
+    const [lock, setLock] = useState(false);
+    const [degree, setDegree] = useState(false);
+    const choices = useRef([]);
 
-    choices[1]=useRef(null);
-    choices[0]=useRef(null);
-    choices[3]=useRef(null);
-    choices[4]=useRef(null);
-    let choices_array=[choices[0],choices[1],choices[2],choices[3]]
-    const checkAns =(e, correct_choice) => {
-        e.preventDefault()
-        if(lock=== false){
-            if(correct_choice===choices[index]){
-                setScore(score+1)
-                e.target.classList.add("correct")
-                setlock(true);
-            }else{
-                e.target.classList.add("wrong")
-                setlock(true);
-                choices_array[correct_choice-1].current.classList.add("correct");
+    const currentQuestion = sample.questions[index];
+    const correctChoice = currentQuestion.correct_choice;
+
+    const checkAns = (e, choiceIndex) => {
+        e.preventDefault();
+        if (!lock) {
+            if (correctChoice === choiceIndex) {
+                setScore(score + 1);
+                e.target.classList.add("correct");
+            } else {
+                e.target.classList.add("wrong");
+                choices.current[correctChoice - 1].classList.add("correct");
             }
+            setLock(true);
         }
-        
-        }
-        const next = () => {
-            if(lock===true){
-                if(index===data.length-1){
-                    setDegree(true)
-                return 0;
-                }
-                setIndex(index+1)
-                setQuestion(data[index])
-                setChoices(question.choices)
-                setCorrect_choice(question.correct_choice)
-                setlock(false);
-                choices_array.map((choice)=>{
-                    choice.current.classList.remove("correct");
-                    choice.current.classList.remove("wrong");
-                    return null;
-                })
+    };
+
+    const next = () => {
+        if (lock) {
+            if (index === sample.questions.length - 1) {
+                setDegree(true);
+                return;
             }
+            setIndex(index + 1);
+            setLock(false);
+            choices.current.forEach(choice => {
+                choice.classList.remove("correct", "wrong");
+            });
         }
-        const start=()=>{
-            setIndex(0);
-            setQuestion(data[index]);
-            setScore(0);
-            setlock(false);
-            setDegree(0);
-        }
-  return (
-    <div className='container'>
-      <h1>Quiz App</h1>
-      <hr />
-      {degree?<></>:<><h2>{index+1}. {question.question}</h2>
-      <ul>
-        <li ref={choices[0]} onClick={(e)=>{checkAns(e,2)}}>{question.choices[index]}</li>
-        <li ref={choices[1]} onClick={(e)=>{checkAns(e,3)}}>{question.choices[index]}</li>
-        <li ref={choices[2]} onClick={(e)=>{checkAns(e,4)}}>{question.choices[index]}</li>
-        <li ref={choices[3]} onClick={(e)=>{checkAns(e,1)}}>{question.choices[index]}</li>
-        
-      </ul>
-      <button onClick={next}>Next</button>
-      <div className="index">{index+1} / {data.length} questions</div>
-      </>}
-      {degree?<><h2>you scored {score}/{data.length}</h2>
-      <button onClick={reset}>Start</button>
-      </>:<></>}
-    </div>
-  )
+    };
+
+    const start = () => {
+        setIndex(0);
+        setScore(0);
+        setLock(false);
+        setDegree(false);
+    };
+
+    return (
+        <div className='container'>
+            <h1>Quiz App</h1>
+            <hr />
+            {degree ? (
+                <>
+                    <h2>You scored {score}/{sample.questions.length}</h2>
+                    <button onClick={start}>Start</button>
+                </>
+            ) : (
+                <>
+                    <h2>{index + 1}. {currentQuestion.question}</h2>
+                    <ul>
+                        {currentQuestion.choices.map((choice, i) => (
+                            <li key={i} ref={el => choices.current[i] = el} onClick={e => checkAns(e, i + 1)}>{choice}</li>
+                        ))}
+                    </ul>
+                    <button onClick={next}>Next</button>
+                    <div className="index">{index + 1} / {sample.questions.length} questions</div>
+                </>
+            )}
+        </div>
+    );
+
+
+    
 }
+
+export default Quiz;
